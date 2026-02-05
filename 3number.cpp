@@ -4,47 +4,51 @@
 #include <vector>
 
 // 3 sum problem
-// numbers: 4, -12, 5, 0, -3, 8, 1, -2, 9, -7, 2, -5, 6, -1, 3, -10, 11, -4, 7, -6
+// numbers:
+//    A.  1, 2, 3, 5, -7, -8, -6, 10, 11, -21
+//    B.  1, 2, 3, 5, -7, -8, -6, 11, 12, -22
 
 //Function declarations
-void sort(std::vector<int>&);
+void printIVec(std::vector<int>);
+void printZSets(std::vector<std::vector<int>>);
+void quickSort(std::vector<int>&, int, int);
+int partition(std::vector<int>&, int, int);
 std::vector<std::vector<int>> threeSum(std::vector<int> &numbers);
 
 int main(){
-  std::vector<int> numbers = {4, -12, 5, 0, -3, 8, 1, -2, 9, -7, 2, -5, 6, -1, 3, -10, 11, -4, 7, -6};
+  // Test cases
+  std::vector<int> numbers1 = {1, 2, 3, 5, -7, -8, -6, 10, 11, -21};
+  std::vector<int> numbers2 = {1, 2, 3, 5, -7, -8, -6, 11, 12, -22};
 
   // Print the unsorted array
-  std::cout << "Unsorted array of numbers:\n[";
-  for (int i = 0; i < numbers.size(); i++){
-    std::cout << numbers.at(i) << (i < numbers.size()-1 ? " " : "");
-  }
-  std::cout << "]" << std::endl;
+  std::cout << "Unsorted arrays of numbers:\n";
+  std::cout << "Array 1:\n";
+  printIVec(numbers1);
+  std::cout << "Array 2:\n";
+  printIVec(numbers2);
 
-  // Sort the array
-  sort(numbers);
+  // Sort the arrays
+  quickSort(numbers1, 0, numbers1.size() - 1);
+  quickSort(numbers2, 0, numbers2.size() - 1);
 
-  // Print the sorted array
-  std::cout << "Sorted array of numbers:" << "\n[";
-  for (int i = 0; i <  numbers.size(); i++){
-    std::cout << numbers.at(i) << (i < numbers.size()-1 ? " " : "");
-  }
-  std::cout << "]" << std::endl;
+  // Print the sorted arrays
+  std::cout << "Sorted arrays of numbers:" << "\n[";
+  std::cout << "Array 1:\n";
+  printIVec(numbers1);
+  std::cout << "Array 2:\n";
+  printIVec(numbers2);
 
-  // Check the array for three sums
-  std::vector<std::vector<int>> zeroSets = threeSum(numbers);
+  // Check the arrays for three sums
+  std::vector<std::vector<int>> n1ZeroSets = threeSum(numbers1);
+  std::vector<std::vector<int>> n2ZeroSets = threeSum(numbers2);
 
   // Print the three sums
-  for (int i = 0; i < zeroSets.size(); ++i) {
-    std::cout << "[";
-    for (int j = 0; j < zeroSets.at(i).size(); ++j) {
-        std::cout << zeroSets.at(i).at(j);
-        if (j < zeroSets.at(i).size() - 1) {
-            std::cout << ", ";
-        }
-    }
-    std::cout << "]" << (i < zeroSets.size() - 1 ? ", " : "") << std::endl;
-  }
-  std::cout << "set count: " << zeroSets.size() << std::endl;
+  std::cout << "Array 1: \n";
+  printZSets(n1ZeroSets);
+  std::cout << "set count: " << n1ZeroSets.size() << std::endl;
+  std::cout << "Array 2: \n";
+  printZSets(n2ZeroSets);
+  std::cout << "set count: " << n2ZeroSets.size() << std::endl;
 
 }
 
@@ -52,21 +56,42 @@ int main(){
 //Function definitions
 //
 
-//takes in an array of numbers and sort it numericly
-void sort(std::vector<int> &numbers){
-    int swap = 0;
-    for (int i = 0; i < numbers.size(); i++){
-        for (int j = i; j < numbers.size(); j++){
-            if(numbers.at(j) < numbers.at(i)){
-                swap = numbers.at(i);
-                numbers.at(i) = numbers.at(j);
-                numbers.at(j) = swap;
-            }
+// Function to partition the array around a pivot for quicksort
+int partition(std::vector<int>& arr, int low, int high) {
+  
+    // Choose the last element as the pivot
+    int pivot = arr[high] - 1; 
+    // Index of the smaller element
+    int i = (low - 1);     
+
+    for (int j = low; j <= high; j++) {
+        // If current element is smaller than or equal to pivot
+        if (arr[j] <= pivot) {
+            i++; // Increment index of smaller element
+            std::swap(arr[i], arr[j]);
         }
-    }   
+    }
+    std::swap(arr[i + 1], arr[high]);
+    return (i + 1);
 }
 
-//takes in an array and determins how many unique combinations of 3 numbers = 0
+// QuickSort algorithm implementation
+// Time complexity: 
+//  best case O(n log n);
+//  worst case O(n^2);
+void quickSort(std::vector<int>& arr, int low, int high) {
+    if (low < high) {
+        // pi is partitioning index, arr[pi] is now at its correct sorted position
+        int pi = partition(arr, low, high);
+
+        // Recursively sort elements before partition and after partition
+        quickSort(arr, low, pi - 1);
+        quickSort(arr, pi + 1, high);
+    }
+}
+
+//takes in a sorted array and determins how many unique combinations of 3 numbers = 0
+// Time complexity: O(n^2)
 std::vector<std::vector<int>> threeSum(std::vector<int> &numbers){
 
   // sets of 3 numbers that equal 0
@@ -97,4 +122,20 @@ std::vector<std::vector<int>> threeSum(std::vector<int> &numbers){
     }
   }
   return sets;
+}
+
+// Prints a vector of ints
+void printIVec(std::vector<int> numbers){
+  std::cout << "[";
+  for (int i = 0; i < numbers.size(); i++){
+    std::cout << numbers.at(i) << (i < numbers.size()-1 ? " " : "");
+  }
+  std::cout << "]" << std::endl;
+}
+
+// prints a vector of a vector of ints
+void printZSets(std::vector<std::vector<int>> zSets){
+  for (int i = 0; i < zSets.size(); ++i) {
+    printIVec(zSets.at(i));
+  }
 }
