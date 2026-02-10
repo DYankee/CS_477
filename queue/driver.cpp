@@ -6,8 +6,6 @@
 
 #include "queue.cpp"
 
-// --- paste corrected Queue code here ---
-
 using Clock = std::chrono::high_resolution_clock;
 
 // Returns elapsed nanoseconds for a single operation via a lambda
