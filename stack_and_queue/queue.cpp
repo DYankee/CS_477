@@ -27,7 +27,7 @@ public:
     void enqueue(int data){
         Node *oldLast = last;
         last = new Node(data);
-        if (isEmpty){
+        if (isEmpty()){
             first = last;
         }
         else{
