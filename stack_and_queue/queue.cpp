@@ -36,8 +36,10 @@ public:
     }
 
     int dequeue(){
+        Node *oldFirst = first;
         int data = first->data;
         first = first->next;
+        delete oldFirst;
 
         if (isEmpty()){
             last = nullptr;
