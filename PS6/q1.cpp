@@ -6,10 +6,10 @@
 
 using namespace std;
 
-// Max int used to track if a node has been visted
+// very large int to mark nodes that have not been visted
 const int INF = 1e9;
 
-
+// Directed edge with weight
 struct Edge {
     int to;
     int weight;
@@ -25,7 +25,7 @@ struct Graph {
         adj[u].push_back({v, w});
     }
 
-    // BFS implementation (Standard Queue)
+    // BFS implementation
     void bfs(int startNode) {
         vector<int> dist(V, INF);
         queue<int> q;
@@ -39,17 +39,18 @@ struct Graph {
 
             for (auto &edge : adj[u]) {
                 if (dist[edge.to] == INF) {
-                    dist[edge.to] = dist[u] + 1;
+                    dist[edge.to] = dist[u] + edge.weight;
                     q.push(edge.to);
                 }
             }
         }
     }
 
-    // Dijkstra implementation (Priority Queue)
+    // Dijkstra implementation
     void dijkstra(int startNode) {
         vector<int> dist(V, INF);
-        // Min-heap priority queue: pair<distance, vertex>
+
+        // Min-heap priority queue
         priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
 
         dist[startNode] = 0;
@@ -73,9 +74,10 @@ struct Graph {
 };
 
 int main() {
-    // We use a larger graph to see a measurable time difference
+    // We use a larger graph than the slide to see a measurable time difference
     int numVertices = 10000;
     int numEdges = 50000;
+    int numRuns = 5;
     Graph g(numVertices);
 
     // Create a large random graph with unit weights (1)
@@ -85,24 +87,37 @@ int main() {
         g.addEdge(u, v, 1); 
     }
 
-    cout << "Testing Shortest Path on a graph with " << numVertices << " nodes and " 
-         << numEdges << " edges (all weights = 1)..." << endl;
+    double totalBfsTime = 0.0;
+    double totalDijkstraTime = 0.0;
 
-    // Measure BFS
-    auto start = chrono::high_resolution_clock::now();
-    g.bfs(0);
-    auto end = chrono::high_resolution_clock::now();
-    chrono::duration<double, milli> bfsTime = end - start;
-    cout << "BFS Time:      " << bfsTime.count() << " ms" << endl;
+    for (int run = 1; run <= numRuns; ++run) {
+        // Measure BFS
+        auto start = chrono::high_resolution_clock::now();
+        g.bfs(0);
+        auto end = chrono::high_resolution_clock::now();
+        chrono::duration<double, milli> bfsTime = end - start;
 
-    // Measure Dijkstra
-    start = chrono::high_resolution_clock::now();
-    g.dijkstra(0);
-    end = chrono::high_resolution_clock::now();
-    chrono::duration<double, milli> dijkstraTime = end - start;
-    cout << "Dijkstra Time: " << dijkstraTime.count() << " ms" << endl;
+        // Measure Dijkstra
+        start = chrono::high_resolution_clock::now();
+        g.dijkstra(0);
+        end = chrono::high_resolution_clock::now();
+        chrono::duration<double, milli> dijkstraTime = end - start;
 
-    cout << "\nDifference: Dijkstra is approx " << (dijkstraTime.count() / bfsTime.count()) 
+        totalBfsTime += bfsTime.count();
+        totalDijkstraTime += dijkstraTime.count();
+
+        cout << "Run " << run << ": BFS = " << bfsTime.count()
+             << " ms, Dijkstra = " << dijkstraTime.count() << " ms"
+             << endl;
+    }
+
+    double avgBfs = totalBfsTime / numRuns;
+    double avgDijkstra = totalDijkstraTime / numRuns;
+
+    cout << "\n--- Averages over " << numRuns << " runs ---" << endl;
+    cout << "BFS Time:      " << avgBfs << " ms" << endl;
+    cout << "Dijkstra Time: " << avgDijkstra << " ms" << endl;
+    cout << "Difference: Dijkstra is approx " << (avgDijkstra / avgBfs)
          << "x slower than BFS due to Priority Queue overhead." << endl;
 
     return 0;
